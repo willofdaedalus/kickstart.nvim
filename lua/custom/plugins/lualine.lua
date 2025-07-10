@@ -4,7 +4,7 @@ return {
     dependencies = { 'nvim-tree/nvim-web-devicons', 'SmiteshP/nvim-navic' },
     config = function()
       require('lualine').setup {
-        options = { theme = 'catppuccin' },
+        options = { theme = 'gruvbox' },
         sections = {
           lualine_c = {
             { 'filename' },

@@ -24,19 +24,19 @@ return {
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
-          -- Rename the variable under your cursor.
-          --  Most Language Servers support renaming across files, etc.
-          map('<leader>rr', vim.lsp.buf.rename, '[R]e[n]ame')
+          -- rename the variable under your cursor.
+          --  most language servers support renaming across files, etc.
+          map('<leader>rr', vim.lsp.buf.rename, '[r]e[n]ame')
 
-          -- Execute a code action, usually your cursor needs to be on top of an error
-          -- or a suggestion from your LSP for this to activate.
+          -- execute a code action, usually your cursor needs to be on top of an error
+          -- or a suggestion from your lsp for this to activate.
           map('<leader>ca', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('<leader>r', require('fzf-lua').lsp_references, '[G]oto [R]eferences')
+          map('gr', require('fzf-lua').lsp_references, '[G]oto [R]eferences')
 
-          -- Jump to the implementation of the word under your cursor.
-          --  Useful when your language has ways of declaring types without an actual implementation.
+          -- jump to the implementation of the word under your cursor.
+          --  useful when your language has ways of declaring types without an actual implementation.
           map('gi', require('fzf-lua').lsp_implementations, '[G]oto [I]mplementation')
 
           map('gd', require('fzf-lua').lsp_definitions, '[G]oto [D]efinition')
@@ -91,6 +91,16 @@ return {
           end
         end,
       })
+
+      -- autoformat on save for c/cpp/objc files
+      if client and client.name == 'clangd' then
+        vim.api.nvim_create_autocmd('BufWritePre', {
+          buffer = event.buf,
+          callback = function()
+            vim.lsp.buf.format { bufnr = event.buf }
+          end,
+        })
+      end
 
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts

@@ -30,6 +30,7 @@ vim.opt.tabstop = 4 -- Set tab width
 vim.opt.shiftwidth = 4
 vim.g.netrw_banner = 0
 vim.g.netrw_liststyle = 4
+vim.opt.colorcolumn = '80'
 
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -75,6 +76,48 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+local show_virtual_text = true
+
+vim.keymap.set('n', '<leader>tv', function()
+  show_virtual_text = not show_virtual_text
+  vim.diagnostic.config {
+    virtual_text = show_virtual_text,
+  }
+  vim.notify('virtual_text: ' .. (show_virtual_text and 'on' or 'off'))
+end, { desc = '[T]oggle LSP [V]irtual text' })
+
+-- clean up whitespace
+local disable_cleanup = {
+  markdown = true,
+  text = true,
+}
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*',
+  callback = function(args)
+    local ft = vim.bo[args.buf].filetype
+    if disable_cleanup[ft] then
+      return
+    end
+
+    vim.api.nvim_buf_call(args.buf, function()
+      vim.cmd [[%s/\s\+$//e]]
+      vim.cmd [[:silent! %s#\($\n\s*\)\+\%$##]]
+    end)
+  end,
+})
+
+-- only apply these settings to c and cpp files
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'c', 'cpp' },
+  callback = function()
+    vim.opt_local.tabstop = 8
+    vim.opt_local.shiftwidth = 8
+    vim.opt_local.softtabstop = 0
+    vim.opt_local.expandtab = false
+  end,
+})
+
 -- install lazy-nvim
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -89,12 +132,9 @@ end
 local rtp = vim.opt.rtp
 rtp:prepend(lazypath)
 
-require('lazy').setup({
+require('lazy').setup {
   { import = 'custom.plugins' },
-}, {
-  ui = {
-    icons = vim.g.have_nerd_font and {} or {},
-  },
-})
+}
+vim.cmd.colorscheme 'gruvbox'
 
 -- vim: ts=2 sts=2 sw=2 et
