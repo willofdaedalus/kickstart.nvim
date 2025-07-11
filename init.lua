@@ -135,6 +135,7 @@ rtp:prepend(lazypath)
 require('lazy').setup {
   { import = 'custom.plugins' },
 }
-vim.cmd.colorscheme 'gruvbox'
 
+vim.opt.background = 'dark' -- set this to dark or light
+vim.cmd 'colorscheme oxocarbon'
 -- vim: ts=2 sts=2 sw=2 et
